@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coming Soon - ReelPet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background-color: #FFFFFF;
+        }
+
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: -1;
+        }
+
+        .coming-soon-animation {
+            animation: moveComingSoon 60s linear infinite;
+            white-space: nowrap;
+            position: absolute;
+            top: 80%;
+            left: 0;
+            transform: translateY(-50%);
+            font-size: 12vw;
+            font-weight: 900;
+            color: white;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes moveComingSoon {
+            0% {
+                transform: translate(0, -50%);
+            }
+
+            100% {
+                transform: translate(-100%, -50%);
+            }
+        }
+
+        .glass-box {
+            background-color: rgba(255, 154, 34, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 154, 34, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(24, 22, 22, 0.37);
+        }
+
+        @media (max-width: 1024px) {
+            .coming-soon-animation {
+                font-size: 14vw;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .coming-soon-animation {
+                font-size: 18vw;
+                top: 85%;
+            }
+
+            .glass-box {
+                width: 90%;
+                padding: 1.5rem;
+            }
+
+            .glass-box h2 {
+                font-size: 1.5rem;
+            }
+
+            .glass-box p {
+                font-size: 1rem;
+            }
+
+            .glass-box input,
+            .glass-box button {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen relative">
+
+    <!-- 배경 비디오 -->
+    <video class="bg-video" autoplay loop muted playsinline>
+        <source src="/assets/videos/background_video.MP4" type="video/mp4" />
+    </video>
+
+    <div class="bg-overlay"></div>
+
+    <!-- 무한 애니메이션 텍스트 -->
+    <div class="coming-soon-animation">
+        COMING SOON &bull; COMING SOON &bull; COMING SOON &bull; COMING SOON &bull; COMING SOON &bull;
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div
+        class="glass-box p-10 rounded-2xl flex flex-col items-center justify-center space-y-6 z-20 max-w-md w-full mx-4 sm:mx-auto">
+        <h2 class="text-white text-4xl font-extrabold tracking-wide drop-shadow-lg">ReelPet</h2>
+        <p class="text-white text-opacity-90 text-center text-lg leading-relaxed">
+            Create, edit, and share unforgettable moments with your pets.
+            Be the first to join our exclusive launch.
+        </p>
+
+        <!-- Form -->
+        <form id="waitlistForm" class="flex w-full space-x-3">
+            <input id="emailInput" name="email" type="email" placeholder="Enter your email"
+                class="flex-grow p-3 rounded-full bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF9A22] transition-all duration-300 shadow-lg"
+                required />
+            <button type="submit" id="joinBtn"
+                class="px-6 py-3 bg-gradient-to-r from-[#FF9A22] to-[#FF7A00] text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
+                Join
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('waitlistForm');
+        const joinBtn = document.getElementById('joinBtn');
+        const emailInput = document.getElementById('emailInput');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Button loading state
+            joinBtn.disabled = true;
+            joinBtn.textContent = 'Joining...';
+            joinBtn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            const email = emailInput.value.trim();
+
+            try {
+                const res = await fetch('https://script.google.com/macros/s/AKfycbz7ei8JKy06aO0CuPCQGsn9td9inoHD7DSj9amXx1wRINglSo-cDy0NuvOllwUB-ugR/exec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'email=' + encodeURIComponent(email)
+                });
+
+                // Try to parse JSON
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    alert('Thank you!!');
+                    form.reset();
+                } else if (data.status === 'exists') {
+                    alert('You are already on the waitlist.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('A server error occurred. Please try again later.');
+            } finally {
+                // Reset button state
+                joinBtn.disabled = false;
+                joinBtn.textContent = 'Join';
+                joinBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        });
+    </script>
+</body>
+
+</html>
